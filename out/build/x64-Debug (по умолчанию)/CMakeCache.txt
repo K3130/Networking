@@ -66,7 +66,7 @@ CMAKE_INSTALL_PREFIX:PATH=C:/Users/smirnov.k/Desktop/MasterChat/Networking/out/i
 CMAKE_LINKER:FILEPATH=D:/Visual Studio Proffesional/VC/Tools/MSVC/14.28.29333/bin/Hostx64/x64/link.exe
 
 //make program
-CMAKE_MAKE_PROGRAM:FILEPATH=D:/Visual Studio Proffesional/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe
+CMAKE_MAKE_PROGRAM:FILEPATH=D:/VISUAL~1/Common7/IDE/COMMON~1/MICROS~1/CMake/Ninja/ninja.exe
 
 //Flags used by the linker during the creation of modules during
 // all build types.
