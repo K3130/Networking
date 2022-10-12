@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
+#include <queue>
 
 #ifdef _WIN32
 #define _WIN32_WINNT 0x0A00
@@ -19,3 +20,13 @@
 #include <asio.hpp>
 #include <asio/ts/buffer.hpp>
 #include <asio/ts/internet.hpp>
+#include <asio/error_code.hpp>
+
+
+namespace io = asio;
+using tcp = io::ip::tcp;
+using error_code = asio::error_code;
+using namespace std::placeholders;
+
+using message_handler = std::function<void(std::string)>;
+using error_handler = std::function<void()>;
