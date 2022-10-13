@@ -1,3 +1,0 @@
-C:/Users/smirnov.k/Desktop/MasterChat/Networking/out/build/x64-Debug (по умолчанию)/CMakeFiles/Networking.dir
-C:/Users/smirnov.k/Desktop/MasterChat/Networking/out/build/x64-Debug (по умолчанию)/CMakeFiles/edit_cache.dir
-C:/Users/smirnov.k/Desktop/MasterChat/Networking/out/build/x64-Debug (по умолчанию)/CMakeFiles/rebuild_cache.dir

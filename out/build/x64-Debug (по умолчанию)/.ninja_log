@@ -1,8 +1,0 @@
-# ninja log v5
-1	3485	685906926	CMakeFiles/Networking.dir/Networking.cpp.obj	cf588bb58c532e7
-3510	4501	685906927	Networking.exe	e24e198d44158b37
-1	208	685907841	build.ninja	39187eb60400a272
-0	5507	685907847	CMakeFiles/Networking.dir/SimpleServer.cpp.obj	893e981bad673c97
-5	5669	685907847	CMakeFiles/Networking.dir/SimpleClient.cpp.obj	474a528fc7f42fb4
-1	3802	685907983	CMakeFiles/Networking.dir/SimpleClient.cpp.obj	474a528fc7f42fb4
-3810	4621	685907984	Networking.exe	8d551c2669a76c60
