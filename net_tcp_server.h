@@ -6,17 +6,17 @@ namespace net
 {
 	/// SESSION
 
-	class Session : public std::enable_shared_from_this<Session> 
+	class Session : public std::enable_shared_from_this<Session>
 	{
 	public:
 		Session(io::io_context& aContext, tcp::socket aSocket) : m_io_context(aContext), m_socket(std::move(aSocket)) {}
 
 		virtual ~Session() {}
 
-		void start(message_handler&& aOnMessage, error_handler&& aOnError) 
+		void start(message_handler&& on_message, error_handler&& on_error) 
 		{
-			m_on_message = std::move(aOnMessage);
-			m_on_error = std::move(aOnError);
+			this->m_on_message = std::move(on_message);
+			this->m_on_error = std::move(on_error);
 			async_read();
 		}
 
@@ -30,28 +30,30 @@ namespace net
 			}
 		}
 	private:
-		void async_read() 
+		void async_read()
 		{
 			asio::async_read_until(m_socket, m_streambuf, "\n", std::bind(&Session::on_read, shared_from_this(), _1, _2));
 		}
 
-		void on_read(error_code aError, std::size_t aBytesTransferred) 
+		void on_read(error_code aError, std::size_t aBytesTransferred)
 		{
-			if (!aError) 
+			if (!aError)
 			{
+				//read message in stream
 				std::stringstream message;
-				message << m_socket.remote_endpoint(aError) << ": " << std::istream(&m_streambuf).rdbuf();
+				message << std::istream(&m_streambuf).rdbuf();
+				
 				m_streambuf.consume(aBytesTransferred);
 				m_on_message(message.str());
 				async_read();
 			}
-			else 
+			else
 			{
 				m_socket.close(aError);
 			}
 		}
 
-		void async_write() 
+		void async_write()
 		{
 			asio::async_write(m_socket, io::buffer(m_outgoing.front()), std::bind(&Session::on_write, shared_from_this(), _1, _2));
 		}
@@ -73,7 +75,7 @@ namespace net
 		{
 			return m_socket.is_open();
 		}
-	
+
 		void set_id(uint32_t aId)
 		{
 			m_id = aId;
@@ -115,9 +117,9 @@ namespace net
 	public:
 		Server(uint16_t aPort) : m_acceptor(m_io_context, tcp::endpoint(tcp::v4(), aPort))
 		{
-			
+
 		}
-		
+
 		virtual ~Server()
 		{
 			stop_server();
@@ -127,41 +129,47 @@ namespace net
 		void wait_for_client_connection()
 		{
 			m_acceptor.async_accept([this](error_code error, tcp::socket socket)
-			{
+				{
 					if (!error)
 					{
 
 						std::shared_ptr<Session> new_client = std::make_shared<Session>(m_io_context, std::move(socket));
-						
-						
+
 
 						if (on_client_connect(new_client))
 						{
 							m_clients.push_back(std::move(new_client));
 							m_clients.back()->set_id(++m_id_counter);
 							m_clients.back()->send_message_in_queue("[SERVER] Welcome to server, you id " + std::to_string(m_clients.back()->get_id()) + "\n\r");
-							send_message_all_clients("[SERVER] We have a newcomer\n\r");
+							
+							
+							//This sends a message to all clients that came to the server
+							m_clients.back()->start(std::bind(&Server::send_message_all_clients, this, _1), nullptr);
+						
 						}
+
 					}
 					else
 					{
 						set_error(error.message());
 					}
-				
-				wait_for_client_connection();
-			});
+
+					wait_for_client_connection();
+				});
+			
 		}
 
-		void send_message_all_clients(const std::string& aMessage, std::shared_ptr<Session> aIgnoreClient = nullptr) 
+		void send_message_all_clients(const std::string& aMessage)
 		{
 			bool invalid_clients = false;
 
-			for (auto& client : m_clients) 
+			for (auto& client : m_clients)
 			{
 				if (client && client->is_connected())
-				{
-					if (client != aIgnoreClient)
-						client->send_message_in_queue(aMessage);
+				{				
+					client->send_message_in_queue(aMessage);
+					//handle
+					on_client_message(client, aMessage);
 				}
 				else
 				{
@@ -216,29 +224,25 @@ namespace net
 		{
 			return m_error_bufer;
 		}
-	
+
 		std::deque < std::shared_ptr<Session>> getClients() const
 		{
-				return m_clients;			
+			return m_clients;
 		}
 
 
-	protected:	
+	protected:
 		virtual bool on_client_connect(std::shared_ptr<Session> aClient) { return true; }
 		virtual void on_client_disconnect(std::shared_ptr<Session> aClient) {}
-		virtual void on_client_message(std::shared_ptr<Session> aClient) {}
+		virtual void on_client_message(std::shared_ptr<Session> aClient, const std::string& aMessage) {}
 
 	protected:
 		std::string m_error_bufer;
-		void set_error(const std::string &aError) { m_error_bufer = aError; }
-
+		void set_error(const std::string& aError) { m_error_bufer = aError; }
 		std::deque<std::shared_ptr<Session>> m_clients;
-
 		io::io_context m_io_context;
 		std::thread m_thread_context;
-		
 		tcp::acceptor m_acceptor;
-
 		uint32_t m_id_counter = 1000;
 	};
 
