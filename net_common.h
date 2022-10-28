@@ -27,6 +27,5 @@ namespace io = asio;
 using tcp = io::ip::tcp;
 using error_code = asio::error_code;
 using namespace std::placeholders;
-
 using message_handler = std::function<void(std::string)>;
 using error_handler = std::function<void()>;
